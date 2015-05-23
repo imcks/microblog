@@ -48,7 +48,7 @@ def login():
 def after_login(resp):
 	if resp.email is None or resp.email == "":
 		flash('Invalid login. Please try again.')
-		return redirect(url_for('index'))
+		return redirect(url_for('login'))
 	user = User.query.filter_by(email = resp.email).first()
 	if user is None:
 		nickname = resp.nickname
@@ -58,6 +58,9 @@ def after_login(resp):
 		nickname = User.make_unique_nickname(nickname)
 		user = User(nickname = nickname, email = resp.email)
 		db.session.add(user)
+		db.session.commit()
+		# 使用户都关注他们自己
+		db.session.add(user.follow(user))
 		db.session.commit()
 	remember_me = False
 	if 'remember_me' in session:
@@ -103,6 +106,45 @@ def edit():
 		form.nickname.data = g.user.nickname
 		form.about_me.data = g.user.about_me
 	return render_template('edit.html', form = form)
+
+@app.route('/follow/<nickname>')
+@login_required
+def follow(nickname):
+	user = User.query.filter_by(nickname = nickname).first()
+	if user is None:
+		flash('User %s not found.' % nickname)
+		return redirect(url_for('index'))
+	if user == g.user:
+		flash('You can\'t follow yourself!')
+		return redirect(url_for('user', nickname = nickname))
+	u = g.user.follow(user)
+	if u is None:
+		flash('Cannot follow %s.' % nickname)
+		return redirect(url_for('user', nickname))
+	db.session.add(u)
+	db.session.commit()
+	flash('You are now following %s !' % nickname)
+	return redirect(url_for('user', nickname = nickname))
+
+@app.route('/unfollow/<nickname>')
+@login_required
+def unfollow(nickname):
+	user = User.query.filter_by(nickname = nickname).first()
+	if user is None:
+		flash('User %s not found.' % nickname)
+		return redirect(url_for('index'))
+	if user == g.user:
+		flash('You can\'t unfollow yourself!')
+		return redirect(url_for('user', nickname = nickname))
+	u = g.user.unfollow(user)
+	if u is None:
+		flash('Cannot unfollow %s.' % nickname)
+		return redirect(url_for('user', nickname = nickname))
+	db.session.add(u)
+	db.session.commit()
+	flash('You have stopped following $s.' % nickname)
+	return redirect(url_for('user', nickname))
+
 
 # 错误页面处理
 @app.errorhandler(404)
