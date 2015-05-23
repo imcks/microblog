@@ -1,7 +1,6 @@
 # python
 *.pyc
 *.pyo
-*.log
 app.db
 search.db
 flask
@@ -10,3 +9,4 @@ tmp/nonces
 tmp/associations
 .idea
 *.mo
+microblog.log
