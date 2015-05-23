@@ -32,6 +32,20 @@ class User(db.Model):
 
 	def avatar(self, size):
 		return 'http://www.gravatar.com/avatar/%s?d=mm&s=%d' % (md5(self.email.encode('utf-8')).hexdigest(), size)
+
+	@staticmethod
+	def make_unique_nickname(nickname):
+		''' 解决OpenID 获取到的nickname可能重复的问题 '''
+		if User.query.filter_by(nickname = nickname).first() == None:
+			return nickname
+		version = 2
+		while 1:
+			new_nickname = nickname + str(version)
+			if User.query.filter_by(nickname == new_nickname).first() == None:
+				break
+			version += 1
+		return new_nickname
+
 	def __repr__(self):
 		return '<User %r>' % (self.nickname)
 

@@ -5,5 +5,7 @@ app.db
 search.db
 flask
 db_repository
+tmp/nonces
+tmp/associations
 .idea
 *.mo
