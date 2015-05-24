@@ -1,8 +1,6 @@
 # coding=utf-8
 __author__ = 'Shan'
-from flask.ext.mail import Message
 from flask import render_template
-from app import mail
 from app import app
 import smtplib
 from email.mime.text import MIMEText

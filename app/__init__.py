@@ -5,11 +5,8 @@ from flask.ext.login import LoginManager
 from flask.ext.openid import OpenID
 from config import basedir, ADMINS, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.mail import Mail
 
 app = Flask(__name__)
-#初始化Mail 对象
-mail = Mail(app)
 # ps:下面是在非dubug模式下开启邮件功能
 """
 在没有邮件服务器的pc上测试邮件功能也很容易，Python有SMTP的测试排错的服务器(SMTP debugging server).
