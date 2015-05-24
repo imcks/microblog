@@ -4,6 +4,7 @@ from flask.ext.login import login_user, logout_user, current_user, login_require
 from app import app, db, lm, oid
 from .forms import LoginForm, EditForm, PostForm, SearchForm
 from .models import User, Post
+from .emails import follower_nitification
 from datetime import datetime
 from config import POSTS_PER_PAGE, MAX_SEARCH_RESULTS
 
@@ -15,7 +16,6 @@ def before_request():
 		db.session.add(g.user)
 		db.session.commit()
 		g.search_form = SearchForm()
-
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
@@ -134,6 +134,7 @@ def follow(nickname):
 	db.session.add(u)
 	db.session.commit()
 	flash('You are now following %s !' % nickname)
+	follower_nitification(user, g.user)
 	return redirect(url_for('user', nickname = nickname))
 
 @app.route('/unfollow/<nickname>')
@@ -152,8 +153,8 @@ def unfollow(nickname):
 		return redirect(url_for('user', nickname = nickname))
 	db.session.add(u)
 	db.session.commit()
-	flash('You have stopped following $s.' % nickname)
-	return redirect(url_for('user', nickname))
+	flash('You have stopped following %s.' % nickname)
+	return redirect(url_for('user', nickname = nickname))
 
 # 从form表单得到数据后，把数据传送给search_result
 @app.route('/search', methods=['GET', 'POST'])
