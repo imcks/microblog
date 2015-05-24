@@ -3,10 +3,18 @@ __author__ = 'Shan'
 from flask import render_template
 from app import app
 import smtplib
+from email.header import Header
 from email.mime.text import MIMEText
+from email.utils import parseaddr, formataddr
 from threading import Thread
 from config import MAIL_SERVER, ADMINS, MAIL_USERNAME, MAIL_PASSWORD
 from .decorators import async
+
+def _format_addr(s):
+	name, addr = parseaddr(s)
+	return formataddr(( \
+		Header(name, 'utf-8').encode(), \
+		addr.encode('utf-8') if isinstance(addr, unicode) else addr))
 
 @async
 def send_sync_email(app,sender,recipients, msg):
@@ -27,6 +35,9 @@ def send_sync_email(app,sender,recipients, msg):
 # 发送邮件代码，暂时只支持html格式
 def send_email(subject, sender, recipients, text_body, html_body):
 	msg = MIMEText(html_body, 'html', 'utf-8')
+	# 格式化管理员的邮件地址
+	msg['From'] = _format_addr(u'noreply <%s>' % sender)
+	msg['to'] = _format_addr(u'Member <%s>' % recipients[0])
 	msg['Subject'] = subject
 
 	thr = Thread(target=send_sync_email, args=[app, sender, recipients, msg])
