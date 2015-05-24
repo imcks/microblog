@@ -28,3 +28,9 @@ class EditForm(Form):
 			self.nickname.errors.append('This nickanme is already in user. Please choose another one.')
 			return False
 		return True
+
+class PostForm(Form):
+	post = StringField('post', validators=[DataRequired()])
+
+class SearchForm(Form):
+	search = StringField('search', validators=[DataRequired()])
